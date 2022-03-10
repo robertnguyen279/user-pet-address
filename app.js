@@ -10,6 +10,7 @@ const userRoutes = require('./routes/user.route');
 const addressRoutes = require('./routes/address.route');
 const adminRoutes = require('./routes/admin.route');
 const petRoutes = require('./routes/pet.route');
+const orderRoutes = require('./routes/order.route');
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use('/users', userRoutes);
 app.use('/addresses', addressRoutes);
 app.use('/admin', adminRoutes);
 app.use('/pets', petRoutes);
+app.use('/store', orderRoutes);
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs));
 
