@@ -46,6 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+app.use('/images', express.static('uploads'));
 app.use('/users', userRoutes);
 app.use('/addresses', addressRoutes);
 app.use('/admin', adminRoutes);

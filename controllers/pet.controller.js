@@ -1,4 +1,4 @@
-const { Pet, Category, Pet_Tag, Tag } = require('../models');
+const { Pet, Category, Pet_Tag, Tag, Photo } = require('../models');
 const { v4: uuid } = require('uuid');
 
 exports.createPet = async (req, res) => {
@@ -52,6 +52,10 @@ exports.getPet = async (req, res) => {
           model: Tag,
           as: 'tags',
         },
+        {
+          model: Photo,
+          as: 'photos',
+        },
       ],
       attributes: {
         exclude: ['categoryId'],
@@ -80,6 +84,10 @@ exports.getAllPets = async (req, res) => {
         {
           model: Tag,
           as: 'tags',
+        },
+        {
+          model: Photo,
+          as: 'photos',
         },
       ],
       attributes: {
@@ -165,6 +173,10 @@ exports.getPetByStatus = async (req, res) => {
           model: Tag,
           as: 'tags',
         },
+        {
+          model: Photo,
+          as: 'photos',
+        },
       ],
       attributes: {
         exclude: ['categoryId'],
@@ -172,6 +184,31 @@ exports.getPetByStatus = async (req, res) => {
     });
 
     res.send(pets);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: error.message, ...error });
+  }
+};
+
+exports.uploadPetImages = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const pet = await Pet.findByPk(id);
+
+    if (!req.files) {
+      throw new Error('Images must be provided');
+    }
+
+    const photos = req.files.map((file) => {
+      return {
+        petId: pet.id,
+        url: `/images/${file.filename}`,
+      };
+    });
+
+    const photosIns = await Photo.bulkCreate(photos);
+
+    res.send(photosIns);
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: error.message, ...error });
