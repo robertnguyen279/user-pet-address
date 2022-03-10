@@ -51,3 +51,25 @@ exports.deleteOrder = async (req, res) => {
     res.status(500).send({ message: error.message, ...error });
   }
 };
+
+exports.updateOrder = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    for (const key in req.body) {
+      order[key] = req.body[key];
+    }
+
+    await order.save();
+    res.send({ message: 'Order updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: error.message, ...error });
+  }
+};
