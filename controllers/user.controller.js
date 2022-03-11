@@ -136,7 +136,6 @@ exports.refreshToken = async (req, res) => {
       process.env.JWT_REFRESH_SECRET
     );
     const { refreshToken: storedToken } = await redisClient.get(userEmail);
-
     if (storedToken !== refreshToken) {
       throw new Error('Token is invalid.');
     }

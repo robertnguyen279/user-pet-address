@@ -64,11 +64,240 @@ paths:
         required: true
         content:
           application/json:
-            schema:210
+            schema:
               $ref: '#/components/schemas/User'
       responses:
         200:
           description: User is successfully created
 
+        500:
+          description: Some server error occured
+    get:
+      summary: Get authenticated user
+      tags: [Users]
+      responses:
+        200:
+          description: User login successfully
+        500:
+          description: Some server error occured
+    delete:
+      summary: Delete authenticated user
+      tags: [Users]
+      responses:
+        200:
+          description: Delete user successfully
+        500:
+          description: Some server error occured
+
+    put:
+      summary: Update authenticated user
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: User is successfully updated
+        500:
+          description: Some server error occured
+
+  /users/login:
+    post:
+      summary: Login user
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+
+      responses:
+        200:
+          description: User login successfully
+        500:
+          description: Some server error occured
+
+  /users/logout:
+    delete:
+      summary: Logout user
+      tags: [Users]
+      responses:
+        200:
+          description: User login successfully
+        500:
+          description: Some server error occured
+
+  /users/token:
+    post:
+      summary: Refresh token
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        200:
+          description: Refresh token successfully
+        500:
+          description: Some server error occured
+
+  /users/addresses:
+    post:
+      summary: Add address to authenticated user
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - unit
+                - road
+                - city
+              properties:
+                unit:
+                  type: string
+                road:
+                  type: string
+                city:
+                  type: string
+      responses:
+        200:
+          description: Add address successfully
+        500:
+          description: Some server error occured
+
+  /users/addresses/{id}:
+    put:
+      summary: Update address for authenticated user
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Address Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - unit
+                - road
+                - city
+              properties:
+                unit:
+                  type: string
+                road:
+                  type: string
+                city:
+                  type: string
+      responses:
+        200:
+          description: Update address successfully
+        500:
+          description: Some server error occured
+
+    delete:
+      summary: Delete address from authenticated user
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Address Id
+      responses:
+        200:
+          description: Delete address successfully
+        500:
+          description: Some server error occured
+
+  /users/getAllUsers:
+    get:
+      summary: Get all users
+      tags: [Users]
+      responses:
+        200:
+          description: User login successfully
+        500:
+          description: Some server error occured
+
+  /users/{id}:
+    get:
+      summary: Get user by id
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: User Id
+      responses:
+        200:
+          description: Update address successfully
+        500:
+          description: Some server error occured
+
+    put:
+      summary: Update user by id
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: Delete user successfully
+        500:
+          description: Some server error occured
+
+    delete:
+      summary: Delete user by id
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: User Id
+      responses:
+        200:
+          description: Delete user successfully
         500:
           description: Some server error occured

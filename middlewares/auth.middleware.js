@@ -3,11 +3,9 @@ const jwt = require('jsonwebtoken');
 
 const checkAuth = async (req, res, next) => {
   const bearerHeader = req.headers['authorization'];
-
   if (bearerHeader) {
     const bearer = bearerHeader.split(' ');
     const bearerToken = bearer[1];
-
     try {
       const user = await verifyAccessToken(bearerToken);
       req.authUser = user;
