@@ -7,8 +7,6 @@ const swaggerJsDoc = require('swagger-jsdoc');
 require('dotenv').config();
 
 const userRoutes = require('./routes/user.route');
-const addressRoutes = require('./routes/address.route');
-const adminRoutes = require('./routes/admin.route');
 const petRoutes = require('./routes/pet.route');
 const orderRoutes = require('./routes/order.route');
 
@@ -49,8 +47,6 @@ app.use(cookieParser());
 
 app.use('/images', express.static('uploads'));
 app.use('/users', userRoutes);
-app.use('/users/addresses', addressRoutes);
-app.use('/admin', adminRoutes);
 app.use('/pets', petRoutes);
 app.use('/store', orderRoutes);
 

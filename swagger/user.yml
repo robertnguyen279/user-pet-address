@@ -64,7 +64,7 @@ paths:
         required: true
         content:
           application/json:
-            schema:
+            schema:210
               $ref: '#/components/schemas/User'
       responses:
         200:

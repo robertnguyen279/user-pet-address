@@ -17,13 +17,14 @@ module.exports = {
       'Users',
       [
         {
-          firstName: 'John',
-          lastName: 'Doe',
+          firstName: 'Van Phuong',
+          lastName: 'Nguyen',
           age: 25,
           id: uuid(),
-          email: 'admin@cmcglobal.vn',
-          password: bcrypt.hashSync('123456'),
+          email: 'phuong09021998@gmail.com',
+          password: bcrypt.hashSync('phuong9823'),
           role: 'admin',
+          phone: '123456',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
