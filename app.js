@@ -27,9 +27,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'User Address API',
+      title: 'Library API',
       version: '1.0.0',
-      description: 'A simple Address API',
+      description: 'A simple Express Library API',
     },
     servers: [
       {
@@ -37,7 +37,7 @@ const options = {
       },
     ],
   },
-  apis: ['./routes/*.js'],
+  apis: ['./swagger/*.yml'],
 };
 
 const specs = swaggerJsDoc(options);
@@ -49,7 +49,7 @@ app.use(cookieParser());
 
 app.use('/images', express.static('uploads'));
 app.use('/users', userRoutes);
-app.use('/addresses', addressRoutes);
+app.use('/users/addresses', addressRoutes);
 app.use('/admin', adminRoutes);
 app.use('/pets', petRoutes);
 app.use('/store', orderRoutes);

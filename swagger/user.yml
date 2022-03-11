@@ -1,0 +1,74 @@
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - age
+        - phone
+        - email
+        - password
+        - addresses
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        age:
+          type: integer
+        phone:
+          type: integer
+        email:
+          type: string
+        password:
+          type: string
+        addresses:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              unit:
+                type: string
+              road:
+                type: string
+              city:
+                type: string
+      example:
+        firstName: 'John'
+        lastName: 'Doe'
+        age: 25
+        email: 'john@example.com'
+        password: 'password'
+        phone: 123456
+        addresses:
+          [
+            { unit: 2, road: 'road', city: 'city' },
+            { unit: 2, road: 'road', city: 'city' },
+          ]
+
+tags:
+  name: Users
+  description: User APIs
+
+paths:
+  /users:
+    post:
+      summary: Create a new user
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: User is successfully created
+
+        500:
+          description: Some server error occured
