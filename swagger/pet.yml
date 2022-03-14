@@ -98,18 +98,18 @@ paths:
           description: Pet id
       responses:
         200:
-          Description: Delete pet by id successfully
+          description: Delete pet by id successfully
         500:
-          Description: Some server error occured
+          description: Some server error occured
   /pets/findByStatus:
     get:
       summary: Find pet by status
       tags: [Pets]
       responses:
         200:
-          Description: Get pets by status successfully
+          description: Get pets by status successfully
         500:
-          Description: Some server error occured
+          description: Some server error occured
   /pets/{id}/uploadImage:
     post:
       summary: Upload pet image
@@ -137,6 +137,6 @@ paths:
                     format: binary
       responses:
         200:
-          Description: Upload pet image successfully
+          description: Upload pet image successfully
         500:
-          Description: Some server error occured
+          description: Some server error occured
