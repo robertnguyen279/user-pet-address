@@ -66,6 +66,9 @@ exports.getPet = async (req, res) => {
         {
           model: Tag,
           as: 'tags',
+          through: {
+            attributes: [],
+          },
         },
         {
           model: Photo,
@@ -106,6 +109,9 @@ exports.getAllPets = async (req, res) => {
         {
           model: Tag,
           as: 'tags',
+          through: {
+            attributes: [],
+          },
         },
         {
           model: Photo,
