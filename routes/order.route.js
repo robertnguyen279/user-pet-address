@@ -9,9 +9,9 @@ const {
 const authMiddleware = require('../middlewares/auth.middleware');
 const adminMiddleware = require('../middlewares/admin.middleware');
 
-router.post('/order', authMiddleware, placeOrder);
-router.get('/order/:id', authMiddleware, adminMiddleware, getOrderById);
-router.delete('/order/:id', authMiddleware, adminMiddleware, deleteOrder);
-router.put('/order/:id', authMiddleware, adminMiddleware, updateOrder);
+router.post('/orders', authMiddleware, placeOrder);
+router.get('/orders/:id', authMiddleware, adminMiddleware, getOrderById);
+router.delete('/orders/:id', authMiddleware, adminMiddleware, deleteOrder);
+router.put('/orders/:id', authMiddleware, adminMiddleware, updateOrder);
 
 module.exports = router;

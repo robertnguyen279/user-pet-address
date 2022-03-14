@@ -1,4 +1,4 @@
-conponents:
+components:
   schemas:
     Order:
       type: object
@@ -9,23 +9,21 @@ conponents:
       properties:
         id:
           type: string
-        userId:
-          type: string
         petId:
           type: string
         quantity:
           type: integer
-        shipData:
-          type: date
         status:
           type: string
           enum: ['placed', 'approved', 'delivered']
-        complete:
-          type: boolean
+        userId:
+          type: string
+        shipDate:
+          type: Date
       example:
-        quantity: 2
-        shipDate: 2022-03-20
-        petId: this-is-a-long-uuid
+        petId: 'A-long-uuid'
+        quantity: 10
+        shipDate: '2022-03-28'
 
 tags:
   name: Orders
@@ -47,6 +45,7 @@ paths:
           description: Place an order successfully
         500:
           description: Some server error occured
+
   /store/orders/{id}:
     get:
       summary: Find an order by id

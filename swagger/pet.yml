@@ -21,7 +21,6 @@ components:
           type: array
           items:
             type: string
-
       example:
         name: 'Yuumi'
         category: 'British'
@@ -75,6 +74,13 @@ paths:
     put:
       summary: Update pet by id
       tags: [Pets]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Pet id
       requestBody:
         required: true
         content:
@@ -101,10 +107,17 @@ paths:
           description: Delete pet by id successfully
         500:
           description: Some server error occured
-  /pets/findByStatus:
+  /pets/findByStatus?status={status}:
     get:
       summary: Find pet by status
       tags: [Pets]
+      parameters:
+        - in: path
+          name: status
+          schema:
+            type: string
+          required: true
+          description: Pet status
       responses:
         200:
           description: Get pets by status successfully

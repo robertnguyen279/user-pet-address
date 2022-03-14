@@ -122,7 +122,9 @@ paths:
                   type: string
                 password:
                   type: string
-
+              example:
+                email: 'phuong09021998@gmail.com'
+                password: 'phuong9823'
       responses:
         200:
           description: User login successfully
