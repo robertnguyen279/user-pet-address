@@ -123,6 +123,11 @@ exports.updateUser = async (req, res) => {
   const authUser = req.authUser;
 
   try {
+    filterBody(
+      ['firstName', 'lastName', 'email', 'password', 'age', 'phone'],
+      req.body
+    );
+
     if (req.body.email) {
       throw new Error('Cannot change email.');
     }
@@ -137,7 +142,10 @@ exports.updateUser = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (error.message.includes('Cannot change email')) {
+    if (
+      error.message.includes('Cannot change email') ||
+      error.message.includes('Invalid request body key')
+    ) {
       res.status(406);
     } else {
       res.status(500);
@@ -181,7 +189,13 @@ exports.refreshToken = async (req, res) => {
     res.send({ token, refreshToken: newRefreshToken });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('Invalid request body key')) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -190,13 +204,25 @@ exports.deleteUser = async (req, res) => {
   await redisClient.del(authUser.id);
 
   try {
-    await User.destroy({ where: { id: authUser.id } });
+    const num = await User.destroy({ where: { id: authUser.id } });
+
+    if (num === 0) {
+      throw new Error('No user found');
+    }
+
     res.send({
       message: 'User deleted successfully',
     });
   } catch (error) {
     console.error(error);
-    send.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('No user found')) {
+      res.status(404);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -208,7 +234,15 @@ exports.addAddress = async (req, res) => {
     await Address.create({ unit, road, city, userId: authUser.id });
     res.send({ message: 'Add address successfully' });
   } catch (error) {
-    res.status(500).send({ message: error.message, ...error });
+    console.error(error);
+
+    if (error.message.includes('Invalid request body key')) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -217,10 +251,22 @@ exports.deleteAddress = async (req, res) => {
   const authUser = req.authUser;
 
   try {
-    await Address.destroy({ where: { id, userId: authUser.id } });
+    const num = await Address.destroy({ where: { id, userId: authUser.id } });
+
+    if (num === 0) {
+      throw new Error('Address not found');
+    }
+
     res.send({ message: 'Delete address successfully' });
   } catch (error) {
-    res.status(500).send({ message: error.message, ...error });
+    console.error(error);
+
+    if (error.message.includes('Address not found')) {
+      res.status(404);
+    } else {
+      res.status(500);
+    }
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -237,7 +283,15 @@ exports.updateAddress = async (req, res) => {
     );
     res.send({ message: 'Update address successfully' });
   } catch (error) {
-    res.status(500).send({ message: error.message, ...error });
+    console.error(error);
+
+    if (error.message.includes('Invalid request body key')) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -259,10 +313,22 @@ exports.deleteUserById = async (req, res) => {
   const id = req.params.id;
 
   try {
-    await User.destroy({ where: { id } });
+    const num = await User.destroy({ where: { id } });
+
+    if (num === 0) {
+      throw new Error('No user to delete');
+    }
+
     res.send({ message: 'Delete user successfully' });
   } catch (error) {
-    res.status(500).send({ message: error.message, ...error });
+    console.error(error);
+
+    if (error.message.includes('No user to delete')) {
+      res.status(404);
+    } else {
+      res.status(500);
+    }
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -286,7 +352,15 @@ exports.updateUserById = async (req, res) => {
     await User.update({ ...req.body }, { where: { id } });
     res.send({ message: 'Update user successfully' });
   } catch (error) {
-    res.status(500).send({ message: error.message, ...error });
+    console.error(error);
+
+    if (error.message.includes('Invalid request body key')) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -309,6 +383,14 @@ exports.getUserById = async (req, res) => {
 
     res.send(user);
   } catch (error) {
-    res.status(500).send({ message: error.message, ...error });
+    console.error(error);
+
+    if (error.message.includes('User not found')) {
+      res.status(404);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };

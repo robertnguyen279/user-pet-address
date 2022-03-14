@@ -2,13 +2,13 @@ const { Order } = require('../models');
 const filterBody = require('../services/filterBody.service');
 
 exports.placeOrder = async (req, res) => {
-  const { petId, quantity, shipDate } = filterBody(
-    ['petId', 'quantity', 'shipDate'],
-    req.body
-  );
-
   const authUser = req.authUser;
   try {
+    const { petId, quantity, shipDate } = filterBody(
+      ['petId', 'quantity', 'shipDate'],
+      req.body
+    );
+
     const order = await Order.create({
       petId,
       quantity,
@@ -21,7 +21,14 @@ exports.placeOrder = async (req, res) => {
     res.send(order);
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('Invalid request body key')) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -37,7 +44,14 @@ exports.getOrderById = async (req, res) => {
     res.send(order);
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('Order not found')) {
+      res.status(404);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -53,7 +67,14 @@ exports.deleteOrder = async (req, res) => {
     res.send({ message: 'Delete order successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('Order not found')) {
+      res.status(404);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -80,6 +101,15 @@ exports.updateOrder = async (req, res) => {
     res.send({ message: 'Order updated successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('Invalid request body key')) {
+      res.status(406);
+    } else if (error.message.includes('Order not found')) {
+      res.status(404);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };

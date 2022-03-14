@@ -11,14 +11,12 @@ const {
 } = require('../controllers/pet.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const adminMiddleware = require('../middlewares/admin.middleware');
-const multerMiddleware = require('../middlewares/multer.middleware');
 
 router.post('/', authMiddleware, adminMiddleware, createPet);
 router.post(
   '/:id/uploadImage',
   authMiddleware,
   adminMiddleware,
-  multerMiddleware,
   uploadPetImages
 );
 router.get('/', getAllPets);

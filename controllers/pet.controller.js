@@ -1,6 +1,7 @@
 const { Pet, Category, Pet_Tag, Tag, Photo } = require('../models');
 const { v4: uuid } = require('uuid');
 const filterBody = require('../services/filterBody.service');
+const uploadFiles = require('../services/multer.service');
 
 exports.createPet = async (req, res) => {
   try {
@@ -37,7 +38,17 @@ exports.createPet = async (req, res) => {
     res.send({ message: 'Create pet successfully', petId: pet.id });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (
+      error.message.includes('Invalid request body key') ||
+      error.message.includes('Category must be specified')
+    ) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -73,7 +84,14 @@ exports.getPet = async (req, res) => {
     res.send(pet);
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('No pet found')) {
+      res.status(404);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -143,7 +161,14 @@ exports.updatePet = async (req, res) => {
     res.send({ message: 'Update pet successfully', petId: pet.id });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('Invalid request body key')) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -160,14 +185,25 @@ exports.deletePet = async (req, res) => {
     res.send({ message: 'Delete pet successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('Pet not found')) {
+      res.status(404);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
 exports.getPetByStatus = async (req, res) => {
-  const status = req.query.status;
-
   try {
+    const status = req.query.status;
+
+    if (!status) {
+      throw new Error('Status must be specified');
+    }
+
     const pets = await Pet.findAll({
       where: { status },
       include: [
@@ -192,31 +228,55 @@ exports.getPetByStatus = async (req, res) => {
     res.send(pets);
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('Status must be specified')) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
 exports.uploadPetImages = async (req, res) => {
-  const id = req.params.id;
-  try {
-    const pet = await Pet.findByPk(id);
+  uploadFiles(req, res, async (err) => {
+    try {
+      if (err) {
+        throw new Error(err);
+      }
 
-    if (!req.files) {
-      throw new Error('Images must be provided');
+      const id = req.params.id;
+      const pet = await Pet.findByPk(id);
+
+      if (!req.files) {
+        throw new Error('Images must be provided');
+      }
+
+      const photos = req.files.map((file) => {
+        return {
+          petId: pet.id,
+          url: `/images/${file.filename}`,
+        };
+      });
+
+      const photosIns = await Photo.bulkCreate(photos);
+
+      res.send(photosIns);
+    } catch (error) {
+      console.error(error);
+
+      if (
+        error.message.includes('Images must be provided') ||
+        error.message.includes('File too large') ||
+        error.message.includes(' Only accept png/jpeg')
+      ) {
+        res.status(406);
+      } else {
+        res.status(500);
+      }
+
+      res.send({ message: error.message, ...error });
     }
-
-    const photos = req.files.map((file) => {
-      return {
-        petId: pet.id,
-        url: `/images/${file.filename}`,
-      };
-    });
-
-    const photosIns = await Photo.bulkCreate(photos);
-
-    res.send(photosIns);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: error.message, ...error });
-  }
+  });
 };
