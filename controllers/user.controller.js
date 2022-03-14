@@ -1,11 +1,23 @@
 const { User, Address } = require('../models');
 const redisClient = require('../services/redis.service');
 const jwt = require('jsonwebtoken');
+const filterBody = require('../services/filterBody.service');
 
 exports.createUser = async (req, res) => {
-  const { firstName, lastName, email, password, addresses, age, phone } =
-    req.body;
   try {
+    const { firstName, lastName, email, password, addresses, age, phone } =
+      filterBody(
+        [
+          'firstName',
+          'lastName',
+          'email',
+          'password',
+          'addresses',
+          'age',
+          'phone',
+        ],
+        req.body
+      );
     const user = await User.create(
       {
         firstName,
@@ -47,9 +59,8 @@ exports.createUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = filterBody(['email', 'password'], req.body);
     const user = await User.findOne({
       where: { email },
       include: [
@@ -129,8 +140,8 @@ exports.logoutUser = async (req, res) => {
 };
 
 exports.refreshToken = async (req, res) => {
-  const refreshToken = req.body.refreshToken;
   try {
+    const { refreshToken } = filterBody(['refreshToken'], req.body);
     const { userEmail } = await jwt.verify(
       refreshToken,
       process.env.JWT_REFRESH_SECRET
@@ -168,8 +179,8 @@ exports.deleteUser = async (req, res) => {
 exports.addAddress = async (req, res) => {
   const authUser = req.authUser;
 
-  const { unit, road, city } = req.body;
   try {
+    const { unit, road, city } = filterBody(['unit', 'road', 'city'], req.body);
     await Address.create({ unit, road, city, userId: authUser.id });
     res.send({ message: 'Add address successfully' });
   } catch (error) {
@@ -194,6 +205,8 @@ exports.updateAddress = async (req, res) => {
   const authUser = req.authUser;
 
   try {
+    filterBody(['unit', 'road', 'city'], req.body);
+
     await Address.update(
       { ...req.body },
       { where: { id, userId: authUser.id } }
@@ -233,6 +246,19 @@ exports.updateUserById = async (req, res) => {
   const id = req.params.id;
 
   try {
+    filterBody(
+      [
+        'firstName',
+        'lastName',
+        'email',
+        'password',
+        'addresses',
+        'age',
+        'phone',
+      ],
+      req.body
+    );
+
     await User.update({ ...req.body }, { where: { id } });
     res.send({ message: 'Update user successfully' });
   } catch (error) {

@@ -1,11 +1,15 @@
 const { Pet, Category, Pet_Tag, Tag, Photo } = require('../models');
 const { v4: uuid } = require('uuid');
+const filterBody = require('../services/filterBody.service');
 
 exports.createPet = async (req, res) => {
-  const { category, name, tags, status } = req.body;
-  const petId = uuid();
-
   try {
+    const { category, name, tags, status } = filterBody(
+      ['category', 'name', 'tags', 'status'],
+      req.body
+    );
+    const petId = uuid();
+
     if (!category) {
       throw new Error('Category must be specified');
     }
@@ -105,6 +109,8 @@ exports.getAllPets = async (req, res) => {
 exports.updatePet = async (req, res) => {
   const id = req.params.id;
   try {
+    filterBody(['category', 'name', 'tags', 'status', 'complete'], req.body);
+
     const pet = await Pet.findByPk(id);
 
     for (const key in req.body) {
