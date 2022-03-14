@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const checkAuth = async (req, res, next) => {
   const bearerHeader = req.headers['authorization'];
+
   if (bearerHeader) {
     const bearer = bearerHeader.split(' ');
     const bearerToken = bearer[1];
@@ -13,11 +14,20 @@ const checkAuth = async (req, res, next) => {
       next();
     } catch (error) {
       console.error(error);
-      res.status(401).send({ error: error.message });
+
+      if (error.message.includes('User not found')) {
+        res.status(404);
+      } else {
+        res.status(500);
+      }
+
+      res.send({ error: error.message });
     }
   } else {
     // Forbidden
-    res.sendStatus(403);
+    res.status(401).send({
+      message: 'You are unauthorized',
+    });
   }
 };
 

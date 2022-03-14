@@ -43,7 +43,7 @@ exports.createUser = async (req, res) => {
 
     await redisClient.set(user.email, { refreshToken });
 
-    res.send({
+    res.status(201).send({
       ...user.dataValues,
       password: undefined,
       token,
@@ -51,7 +51,13 @@ exports.createUser = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send({
+    if (error.message.includes('Invalid request body key')) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+
+    res.send({
       message: error.message,
       ...error,
     });
@@ -93,7 +99,18 @@ exports.loginUser = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+    if (error.message.includes('Invalid request body key')) {
+      res.status(406);
+    } else if (
+      error.message.includes('User not found') ||
+      error.message.includes('Password is not correct')
+    ) {
+      res.status(400);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -119,7 +136,14 @@ exports.updateUser = async (req, res) => {
     res.send({ message: 'User updated successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+
+    if (error.message.includes('Cannot change email')) {
+      res.status(406);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
