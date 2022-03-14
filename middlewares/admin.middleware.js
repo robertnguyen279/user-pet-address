@@ -1,6 +1,6 @@
 const checkAdmin = (req, res, next) => {
   if (req.authUser.role === 'user') {
-    res.status(401).send({ message: 'You are not authorized.' });
+    res.status(403).send({ message: 'You are not authorized.' });
   }
 
   next();

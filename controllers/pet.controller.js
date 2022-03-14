@@ -35,7 +35,7 @@ exports.createPet = async (req, res) => {
       );
     }
 
-    res.send({ message: 'Create pet successfully', petId: pet.id });
+    res.status(201).send({ message: 'Create pet successfully', petId: pet.id });
   } catch (error) {
     console.error(error);
 
@@ -254,8 +254,8 @@ exports.uploadPetImages = async (req, res) => {
 
       const id = req.params.id;
       const pet = await Pet.findByPk(id);
-
-      if (!req.files) {
+      console.log(req.files);
+      if (!req.files || !req.files.length) {
         throw new Error('Images must be provided');
       }
 

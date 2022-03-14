@@ -28,7 +28,7 @@ exports.placeOrder = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.status(201).send({ message: error.message, ...error });
   }
 };
 
