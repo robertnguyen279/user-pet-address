@@ -39,16 +39,7 @@ exports.createPet = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (
-      error.message.includes('Invalid request body key') ||
-      error.message.includes('Category must be specified')
-    ) {
-      res.status(406);
-    } else {
-      res.status(500);
-    }
-
-    res.send({ message: error.message, ...error });
+    res.status(500).send({ message: error.message, ...error });
   }
 };
 
@@ -168,13 +159,7 @@ exports.updatePet = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (error.message.includes('Invalid request body key')) {
-      res.status(406);
-    } else {
-      res.status(500);
-    }
-
-    res.send({ message: error.message, ...error });
+    res.status(500).send({ message: error.message, ...error });
   }
 };
 
@@ -235,13 +220,7 @@ exports.getPetByStatus = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (error.message.includes('Status must be specified')) {
-      res.status(406);
-    } else {
-      res.status(500);
-    }
-
-    res.send({ message: error.message, ...error });
+    res.status(500).send({ message: error.message, ...error });
   }
 };
 
@@ -272,17 +251,7 @@ exports.uploadPetImages = async (req, res) => {
     } catch (error) {
       console.error(error);
 
-      if (
-        error.message.includes('Images must be provided') ||
-        error.message.includes('File too large') ||
-        error.message.includes(' Only accept png/jpeg')
-      ) {
-        res.status(406);
-      } else {
-        res.status(500);
-      }
-
-      res.send({ message: error.message, ...error });
+      res.status(500).send({ message: error.message, ...error });
     }
   });
 };

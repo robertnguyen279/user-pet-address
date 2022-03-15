@@ -18,17 +18,11 @@ exports.placeOrder = async (req, res) => {
       complete: false,
     });
 
-    res.send(order);
+    res.status(201).send(order);
   } catch (error) {
     console.error(error);
 
-    if (error.message.includes('Invalid request body key')) {
-      res.status(406);
-    } else {
-      res.status(500);
-    }
-
-    res.status(201).send({ message: error.message, ...error });
+    res.status(500).send({ message: error.message, ...error });
   }
 };
 
@@ -102,9 +96,7 @@ exports.updateOrder = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (error.message.includes('Invalid request body key')) {
-      res.status(406);
-    } else if (error.message.includes('Order not found')) {
+    if (error.message.includes('Order not found')) {
       res.status(404);
     } else {
       res.status(500);
