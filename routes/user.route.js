@@ -15,6 +15,7 @@ const {
   getUserById,
   deleteUserById,
   updateUserById,
+  createUserByAdmin,
 } = require('../controllers/user.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const adminMiddleware = require('../middlewares/admin.middleware');
@@ -33,5 +34,6 @@ router.get('/getAllUsers', authMiddleware, adminMiddleware, getAllUsers);
 router.get('/:id', authMiddleware, adminMiddleware, getUserById);
 router.delete('/:id', authMiddleware, adminMiddleware, deleteUserById);
 router.put('/:id', authMiddleware, adminMiddleware, updateUserById);
+router.post('/admin', authMiddleware, adminMiddleware, createUserByAdmin);
 
 module.exports = router;

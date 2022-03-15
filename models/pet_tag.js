@@ -9,6 +9,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Pet_Tag.belongsTo(models.Pet, {
+        foreignKey: 'petId',
+        onDelete: 'CASCADE',
+      });
+
+      Pet_Tag.belongsTo(models.Tag, {
+        foreignKey: 'tagId',
+        onDelete: 'CASCADE',
+      });
     }
   }
   Pet_Tag.init(

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'category',
       });
 
-      Pet.hasOne(models.Order, { foreignKey: 'petId' });
+      Pet.hasMany(models.Order, { foreignKey: 'petId' });
       Pet.hasMany(models.Photo, { foreignKey: 'petId', as: 'photos' });
       Pet.Tag = Pet.belongsToMany(models.Tag, {
         through: models.Pet_Tag,

@@ -9,7 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      // Order.hasOne(models.Pet, { foreignKey: 'orderId', onDelete: 'CASCADE' });
+      Order.belongsTo(models.Pet, {
+        foreignKey: 'petId',
+        onDelete: 'CASCADE',
+      });
     }
   }
   Order.init(

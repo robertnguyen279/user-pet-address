@@ -60,7 +60,6 @@ exports.createUser = async (req, res) => {
 
     res.send({
       message: error.message,
-      ...error,
     });
   }
 };
@@ -111,7 +110,7 @@ exports.loginUser = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -152,7 +151,7 @@ exports.updateUser = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -168,7 +167,6 @@ exports.logoutUser = async (req, res) => {
 
     res.status(500).send({
       message: error.message,
-      ...error,
     });
   }
 };
@@ -198,7 +196,7 @@ exports.refreshToken = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -225,7 +223,7 @@ exports.deleteUser = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -245,7 +243,7 @@ exports.addAddress = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -269,7 +267,7 @@ exports.deleteAddress = async (req, res) => {
     } else {
       res.status(500);
     }
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -294,7 +292,7 @@ exports.updateAddress = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -308,7 +306,78 @@ exports.getAllUsers = async (req, res) => {
 
     res.send(users);
   } catch (error) {
-    res.status(500).send({ message: error.message, ...error });
+    res.status(500).send({ message: error.message });
+  }
+};
+
+exports.createUserByAdmin = async (req, res) => {
+  try {
+    const {
+      firstName,
+      lastName,
+      role,
+      email,
+      password,
+      addresses,
+      age,
+      phone,
+    } = filterBody(
+      [
+        'firstName',
+        'lastName',
+        'email',
+        'password',
+        'addresses',
+        'role',
+        'age',
+        'phone',
+      ],
+      req.body
+    );
+    const user = await User.create(
+      {
+        firstName,
+        lastName,
+        age,
+        email,
+        role,
+        phone,
+        password,
+        addresses,
+      },
+      {
+        include: [
+          {
+            association: User.Address,
+            as: 'addresses',
+          },
+        ],
+      }
+    );
+
+    const token = await User.generateAccessToken(req.body.email);
+    const refreshToken = await User.generateRefreshToken(req.body.email);
+
+    await redisClient.set(user.email, { refreshToken });
+
+    res.status(201).send({
+      ...user.dataValues,
+      password: undefined,
+      token,
+      refreshToken,
+    });
+  } catch (error) {
+    console.error(error);
+
+    if (error.message.includes('Invalid request body key')) {
+      res.status(400);
+    } else {
+      res.status(500);
+    }
+
+    res.send({
+      message: error.message,
+    });
   }
 };
 
@@ -332,7 +401,7 @@ exports.deleteUserById = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -364,7 +433,7 @@ exports.updateUserById = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -395,6 +464,6 @@ exports.getUserById = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };

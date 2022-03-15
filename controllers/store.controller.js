@@ -1,4 +1,4 @@
-const { Order } = require('../models');
+const { Order, Pet } = require('../models');
 const filterBody = require('../services/filterBody.service');
 
 exports.placeOrder = async (req, res) => {
@@ -9,6 +9,12 @@ exports.placeOrder = async (req, res) => {
       req.body
     );
 
+    const pet = await Pet.findByPk(petId);
+
+    if (pet.status !== 'available') {
+      throw new Error('Pet is not available');
+    }
+
     const order = await Order.create({
       petId,
       quantity,
@@ -18,12 +24,17 @@ exports.placeOrder = async (req, res) => {
       complete: false,
     });
 
+    pet.status = 'pending';
+    await pet.save();
+
     res.status(201).send(order);
   } catch (error) {
     console.error(error);
 
     if (error.message.includes('Invalid request body key')) {
       res.status(400);
+    } else if (error.message.includes('Pet is not available')) {
+      res.status(404);
     } else {
       res.status(500);
     }
@@ -82,12 +93,10 @@ exports.updateOrder = async (req, res) => {
   const id = req.params.id;
 
   try {
-    filterBody(
-      ['petId', 'quantity', 'shipDate', 'status', 'complete'],
-      req.body
-    );
+    const { complete } = filterBody(['status', 'complete'], req.body);
 
     const order = await Order.findByPk(id);
+    const pet = await Pet.findByPk(order.petId);
 
     if (!order) {
       throw new Error('Order not found');
@@ -97,7 +106,13 @@ exports.updateOrder = async (req, res) => {
       order[key] = req.body[key];
     }
 
+    if (complete) {
+      pet.status = 'sold';
+    }
+
     await order.save();
+    await pet.save();
+
     res.send({ message: 'Order updated successfully' });
   } catch (error) {
     console.error(error);
