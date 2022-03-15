@@ -43,6 +43,8 @@ paths:
       responses:
         200:
           description: Place an order successfully
+        400:
+          description: Invalid request
         500:
           description: Some server error occured
 
@@ -60,8 +62,11 @@ paths:
       responses:
         200:
           description: Get order successfully
+        404:
+          description: Not found
         500:
           description: Some server error occured
+
     put:
       summary: Update an order by id
       tags: [Orders]
@@ -81,6 +86,10 @@ paths:
       responses:
         200:
           description: Update order successfully
+        400:
+          description: Invalid request
+        404:
+          description: Not found
         500:
           description: Some server error occured
 
@@ -97,5 +106,7 @@ paths:
       responses:
         200:
           description: Delete order successfully
+        404:
+          description: Not found
         500:
           description: Some server error occured

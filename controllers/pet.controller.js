@@ -134,6 +134,10 @@ exports.updatePet = async (req, res) => {
 
     const pet = await Pet.findByPk(id);
 
+    if (!pet) {
+      throw new Error('No pet found');
+    }
+
     for (const key in req.body) {
       pet[key] = req.body[key];
     }
@@ -167,6 +171,8 @@ exports.updatePet = async (req, res) => {
 
     if (error.message.includes('Invalid request body key')) {
       res.status(400);
+    } else if (error.message.includes('No pet found')) {
+      res.status(404);
     } else {
       res.status(500);
     }
@@ -232,7 +238,13 @@ exports.getPetByStatus = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).send({ message: error.message, ...error });
+    if (error.message.includes('Status must be specified')) {
+      res.status(400);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 

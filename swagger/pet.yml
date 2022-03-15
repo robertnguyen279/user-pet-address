@@ -45,6 +45,8 @@ paths:
       responses:
         200:
           description: Pet is successfully created
+        400:
+          description: Invalid request
         500:
           description: Some server error occured
     get:
@@ -69,6 +71,8 @@ paths:
       responses:
         200:
           description: Get pet successfully
+        404:
+          description: Not found
         500:
           description: Some server error occured
     put:
@@ -90,6 +94,8 @@ paths:
       responses:
         200:
           Description: Get pet by id successfully
+        400:
+          description: Invalid request
         500:
           Description: Some server error occurred
     delete:
@@ -105,8 +111,11 @@ paths:
       responses:
         200:
           description: Delete pet by id successfully
+        404:
+          description: Not found
         500:
           description: Some server error occured
+
   /pets/findByStatus?status={status}:
     get:
       summary: Find pet by status
@@ -121,8 +130,11 @@ paths:
       responses:
         200:
           description: Get pets by status successfully
+        400:
+          description: Invalid request
         500:
           description: Some server error occured
+
   /pets/{id}/uploadImage:
     post:
       summary: Upload pet image

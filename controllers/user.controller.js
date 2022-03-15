@@ -143,7 +143,10 @@ exports.updateUser = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (error.message.includes('Invalid request body key')) {
+    if (
+      error.message.includes('Invalid request body key') ||
+      error.message.includes('Cannot change email')
+    ) {
       res.status(400);
     } else {
       res.status(500);
