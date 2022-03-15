@@ -89,11 +89,11 @@ exports.deleteOrder = async (req, res) => {
   }
 };
 
-exports.updateOrder = async (req, res) => {
+exports.updateOrderStatus = async (req, res) => {
   const id = req.params.id;
 
   try {
-    const { complete } = filterBody(['status', 'complete'], req.body);
+    const { status } = filterBody(['status', 'complete'], req.body);
 
     const order = await Order.findByPk(id);
     const pet = await Pet.findByPk(order.petId);
@@ -102,11 +102,10 @@ exports.updateOrder = async (req, res) => {
       throw new Error('Order not found');
     }
 
-    for (const key in req.body) {
-      order[key] = req.body[key];
-    }
+    order.status = status;
 
-    if (complete) {
+    if (status === 'delivered') {
+      order.complete = true;
       pet.status = 'sold';
     }
 
