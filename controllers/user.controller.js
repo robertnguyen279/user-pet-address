@@ -52,7 +52,13 @@ exports.createUser = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).send({
+    if (error.message.includes('Invalid request body key')) {
+      res.status(400);
+    } else {
+      res.status(500);
+    }
+
+    res.send({
       message: error.message,
       ...error,
     });
@@ -97,6 +103,10 @@ exports.loginUser = async (req, res) => {
 
     if (error.message.includes('User not found')) {
       res.status(404);
+    } else if (error.message.includes('Password is not correct')) {
+      res.status(401);
+    } else if (error.message.includes('Invalid request body key')) {
+      res.status(400);
     } else {
       res.status(500);
     }
@@ -133,7 +143,13 @@ exports.updateUser = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).send({ message: error.message, ...error });
+    if (error.message.includes('Invalid request body key')) {
+      res.status(400);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -173,7 +189,13 @@ exports.refreshToken = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).send({ message: error.message, ...error });
+    if (error.message.includes('Invalid request body key')) {
+      res.status(400);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -214,7 +236,13 @@ exports.addAddress = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).send({ message: error.message, ...error });
+    if (error.message.includes('Invalid request body key')) {
+      res.status(400);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -257,7 +285,13 @@ exports.updateAddress = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).send({ message: error.message, ...error });
+    if (error.message.includes('Invalid request body key')) {
+      res.status(400);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
@@ -294,6 +328,7 @@ exports.deleteUserById = async (req, res) => {
     } else {
       res.status(500);
     }
+
     res.send({ message: error.message, ...error });
   }
 };
@@ -320,7 +355,13 @@ exports.updateUserById = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).send({ message: error.message, ...error });
+    if (error.message.includes('Invalid request body key')) {
+      res.status(400);
+    } else {
+      res.status(500);
+    }
+
+    res.send({ message: error.message, ...error });
   }
 };
 
