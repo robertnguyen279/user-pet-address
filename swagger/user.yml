@@ -333,3 +333,21 @@ paths:
           description: Not found
         500:
           description: Some server error occured
+  /users/admin:
+    post:
+      summary: Create a new user by admin
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: User is successfully created
+
+        400:
+          description: Invalid request
+        500:
+          description: Some server error occured

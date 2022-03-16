@@ -47,6 +47,14 @@ paths:
           description: Invalid request
         500:
           description: Some server error occured
+    get:
+      summary: Get all orders
+      tags: [Orders]
+      responses:
+        200:
+          description: Get orders successfully
+        500:
+          description: Some server error occured
 
   /store/orders/{id}:
     get:

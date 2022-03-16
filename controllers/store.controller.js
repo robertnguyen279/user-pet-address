@@ -69,6 +69,8 @@ exports.getOrderById = async (req, res) => {
 exports.deleteOrder = async (req, res) => {
   const id = req.params.id;
   try {
+    const order = await Order.findByPk(id);
+    await Pet.update({ status: 'available' }, { where: { id: order.petId } });
     const num = await Order.destroy({ where: { id } });
 
     if (!num) {
@@ -89,11 +91,20 @@ exports.deleteOrder = async (req, res) => {
   }
 };
 
+exports.getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.findAll();
+    res.send(orders);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
+
 exports.updateOrderStatus = async (req, res) => {
   const id = req.params.id;
 
   try {
-    const { status } = filterBody(['status', 'complete'], req.body);
+    const { status } = filterBody(['status'], req.body);
 
     const order = await Order.findByPk(id);
     const pet = await Pet.findByPk(order.petId);

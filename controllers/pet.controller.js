@@ -185,10 +185,10 @@ exports.deletePet = async (req, res) => {
   const id = req.params.id;
 
   try {
-    const num = await Pet.destroy({ where: { id } });
+    const num = await Pet.destroy({ where: { id, status: 'available' } });
 
     if (!num) {
-      throw new Error('Pet not found');
+      throw new Error('Pet not found or not available');
     }
 
     res.send({ message: 'Delete pet successfully' });
