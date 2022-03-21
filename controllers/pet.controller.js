@@ -3,12 +3,11 @@ const { v4: uuid } = require('uuid');
 const filterBody = require('../services/filterBody.service');
 const uploadFiles = require('../services/multer.service');
 
+const validPetKeys = ['category', 'name', 'tags', 'status', , 'complete'];
+
 exports.createPet = async (req, res) => {
   try {
-    const { category, name, tags, status } = filterBody(
-      ['category', 'name', 'tags', 'status'],
-      req.body
-    );
+    const { category, name, tags, status } = filterBody(validPetKeys, req.body);
     const petId = uuid();
 
     if (!category) {
@@ -130,7 +129,7 @@ exports.getAllPets = async (req, res) => {
 exports.updatePet = async (req, res) => {
   const id = req.params.id;
   try {
-    filterBody(['category', 'name', 'tags', 'status', 'complete'], req.body);
+    filterBody(validPetKeys, req.body);
 
     const pet = await Pet.findByPk(id);
 

@@ -1,13 +1,12 @@
 const { Order, Pet } = require('../models');
 const filterBody = require('../services/filterBody.service');
 
+const validOrderKeys = ['petId', 'quantity', 'shipDate'];
+
 exports.placeOrder = async (req, res) => {
   const authUser = req.authUser;
   try {
-    const { petId, quantity, shipDate } = filterBody(
-      ['petId', 'quantity', 'shipDate'],
-      req.body
-    );
+    const { petId, quantity, shipDate } = filterBody(validOrderKeys, req.body);
 
     const pet = await Pet.findByPk(petId);
 
@@ -104,7 +103,7 @@ exports.updateOrderStatus = async (req, res) => {
   const id = req.params.id;
 
   try {
-    const { status } = filterBody(['status'], req.body);
+    const { status } = filterBody(validOrderKeys, req.body);
 
     const order = await Order.findByPk(id);
     const pet = await Pet.findByPk(order.petId);

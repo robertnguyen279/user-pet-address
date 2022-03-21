@@ -3,21 +3,22 @@ const redisClient = require('../services/redis.service');
 const jwt = require('jsonwebtoken');
 const filterBody = require('../services/filterBody.service');
 
+const validUserKeys = [
+  'firstName',
+  'lastName',
+  'email',
+  'password',
+  'addresses',
+  'age',
+  'phone',
+];
+
+const validAddressKeys = ['unit', 'road', 'city'];
+
 exports.createUser = async (req, res) => {
   try {
     const { firstName, lastName, email, password, addresses, age, phone } =
-      filterBody(
-        [
-          'firstName',
-          'lastName',
-          'email',
-          'password',
-          'addresses',
-          'age',
-          'phone',
-        ],
-        req.body
-      );
+      filterBody(validUserKeys, req.body);
     const user = await User.create(
       {
         firstName,
@@ -123,10 +124,7 @@ exports.updateUser = async (req, res) => {
   const authUser = req.authUser;
 
   try {
-    filterBody(
-      ['firstName', 'lastName', 'email', 'password', 'age', 'phone'],
-      req.body
-    );
+    filterBody(validUserKeys, req.body);
 
     if (req.body.email) {
       throw new Error('Cannot change email.');
@@ -231,7 +229,7 @@ exports.addAddress = async (req, res) => {
   const authUser = req.authUser;
 
   try {
-    const { unit, road, city } = filterBody(['unit', 'road', 'city'], req.body);
+    const { unit, road, city } = filterBody(validAddressKeys, req.body);
     await Address.create({ unit, road, city, userId: authUser.id });
     res.send({ message: 'Add address successfully' });
   } catch (error) {
@@ -276,7 +274,7 @@ exports.updateAddress = async (req, res) => {
   const authUser = req.authUser;
 
   try {
-    filterBody(['unit', 'road', 'city'], req.body);
+    filterBody(validAddressKeys, req.body);
 
     await Address.update(
       { ...req.body },
@@ -321,19 +319,7 @@ exports.createUserByAdmin = async (req, res) => {
       addresses,
       age,
       phone,
-    } = filterBody(
-      [
-        'firstName',
-        'lastName',
-        'email',
-        'password',
-        'addresses',
-        'role',
-        'age',
-        'phone',
-      ],
-      req.body
-    );
+    } = filterBody(validUserKeys, req.body);
     const user = await User.create(
       {
         firstName,
@@ -409,18 +395,7 @@ exports.updateUserById = async (req, res) => {
   const id = req.params.id;
 
   try {
-    filterBody(
-      [
-        'firstName',
-        'lastName',
-        'email',
-        'password',
-        'addresses',
-        'age',
-        'phone',
-      ],
-      req.body
-    );
+    filterBody(validUserKeys, req.body);
 
     await User.update({ ...req.body }, { where: { id } });
     res.send({ message: 'Update user successfully' });
