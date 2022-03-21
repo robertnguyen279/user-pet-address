@@ -1,4 +1,4 @@
-const { Pet, Category, Pet_Tag, Tag, Photo } = require('../models');
+const { Pet, Category, Pet_Tag, Tag, Photo, sequelize } = require('../models');
 const { v4: uuid } = require('uuid');
 const filterBody = require('../services/filterBody.service');
 const uploadFiles = require('../services/multer.service');
@@ -14,27 +14,40 @@ exports.createPet = async (req, res) => {
       throw new Error('Category must be specified');
     }
 
-    const categoryIns = await Category.findOrCreate({
-      where: { name: category },
-    });
+    const result = await sequelize.transaction(async (t) => {
+      const categoryIns = await Category.findOrCreate({
+        where: { name: category },
+        transaction: t,
+      });
 
-    const pet = await Pet.create({
-      id: petId,
-      name,
-      categoryId: categoryIns[0].id,
-      status,
-    });
-
-    if (tags) {
-      await Promise.all(
-        tags.map(async (tag) => {
-          const tagInc = await Tag.findOrCreate({ where: { name: tag } });
-          await Pet_Tag.findOrCreate({ where: { petId, tagId: tagInc[0].id } });
-        })
+      const pet = await Pet.create(
+        {
+          id: petId,
+          name,
+          categoryId: categoryIns[0].id,
+          status,
+        },
+        { transaction: t }
       );
-    }
 
-    res.status(201).send({ message: 'Create pet successfully', petId: pet.id });
+      if (tags) {
+        await Promise.all(
+          tags.map(async (tag) => {
+            const tagInc = await Tag.findOrCreate({
+              where: { name: tag },
+              transaction: t,
+            });
+            await Pet_Tag.findOrCreate({
+              where: { petId, tagId: tagInc[0].id },
+              transaction: t,
+            });
+          })
+        );
+      }
+      return pet.id;
+    });
+
+    res.status(201).send({ message: 'Create pet successfully', petId: result });
   } catch (error) {
     console.error(error);
 
@@ -44,7 +57,7 @@ exports.createPet = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -90,7 +103,7 @@ exports.getPet = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -122,49 +135,58 @@ exports.getAllPets = async (req, res) => {
     res.send(pets);
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: error.message, ...error });
+    res.status(500).send({ message: error.message });
   }
 };
 
 exports.updatePet = async (req, res) => {
   const id = req.params.id;
   try {
-    filterBody(validPetKeys, req.body);
+    const result = await sequelize.transaction(async (t) => {
+      filterBody(validPetKeys, req.body);
 
-    const pet = await Pet.findByPk(id);
+      const pet = await Pet.findByPk(id);
 
-    if (!pet) {
-      throw new Error('No pet found');
-    }
+      if (!pet) {
+        throw new Error('No pet found');
+      }
 
-    for (const key in req.body) {
-      pet[key] = req.body[key];
-    }
+      for (const key in req.body) {
+        pet[key] = req.body[key];
+      }
 
-    if (req.body.category) {
-      const categoryIns = await Category.findOrCreate({
-        where: { name: req.body.category },
-      });
+      if (req.body.category) {
+        const categoryIns = await Category.findOrCreate({
+          where: { name: req.body.category },
+          transaction: t,
+        });
 
-      pet.categoryId = categoryIns[0].id;
-    }
+        pet.categoryId = categoryIns[0].id;
+      }
 
-    await pet.save();
+      await pet.save({ transaction: t });
 
-    if (req.body.tags) {
-      await Pet_Tag.destroy({ where: { petId: pet.id } });
-      await Promise.all(
-        req.body.tags.map(async (tag) => {
-          const tagInc = await Tag.findOrCreate({ where: { name: tag } });
+      if (req.body.tags) {
+        await Pet_Tag.destroy({ where: { petId: pet.id }, transaction: t });
+        await Promise.all(
+          req.body.tags.map(async (tag) => {
+            const tagInc = await Tag.findOrCreate({
+              where: { name: tag },
+              transaction: t,
+            });
 
-          await Pet_Tag.findOrCreate({
-            where: { petId: pet.id, tagId: tagInc[0].id },
-          });
-        })
-      );
-    }
+            await Pet_Tag.findOrCreate({
+              where: { petId: pet.id, tagId: tagInc[0].id },
+              transaction: t,
+            });
+          })
+        );
+      }
 
-    res.send({ message: 'Update pet successfully', petId: pet.id });
+      return pet.id;
+    });
+
+    res.send({ message: 'Update pet successfully', petId: result });
   } catch (error) {
     console.error(error);
 
@@ -176,7 +198,7 @@ exports.updatePet = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -200,7 +222,7 @@ exports.deletePet = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -243,7 +265,7 @@ exports.getPetByStatus = async (req, res) => {
       res.status(500);
     }
 
-    res.send({ message: error.message, ...error });
+    res.send({ message: error.message });
   }
 };
 
@@ -256,7 +278,7 @@ exports.uploadPetImages = async (req, res) => {
 
       const id = req.params.id;
       const pet = await Pet.findByPk(id);
-      console.log(req.files);
+
       if (!req.files || !req.files.length) {
         throw new Error('Images must be provided');
       }
@@ -274,7 +296,7 @@ exports.uploadPetImages = async (req, res) => {
     } catch (error) {
       console.error(error);
 
-      res.status(500).send({ message: error.message, ...error });
+      res.status(500).send({ message: error.message });
     }
   });
 };

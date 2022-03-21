@@ -1,4 +1,4 @@
-const { Order, Pet } = require('../models');
+const { Order, Pet, sequelize } = require('../models');
 const filterBody = require('../services/filterBody.service');
 
 const validOrderKeys = ['petId', 'quantity', 'shipDate'];
@@ -6,27 +6,37 @@ const validOrderKeys = ['petId', 'quantity', 'shipDate'];
 exports.placeOrder = async (req, res) => {
   const authUser = req.authUser;
   try {
-    const { petId, quantity, shipDate } = filterBody(validOrderKeys, req.body);
+    const result = await sequelize.transaction(async (t) => {
+      const { petId, quantity, shipDate } = filterBody(
+        validOrderKeys,
+        req.body
+      );
 
-    const pet = await Pet.findByPk(petId);
+      const pet = await Pet.findByPk(petId);
 
-    if (pet.status !== 'available') {
-      throw new Error('Pet is not available');
-    }
+      if (pet.status !== 'available') {
+        throw new Error('Pet is not available');
+      }
 
-    const order = await Order.create({
-      petId,
-      quantity,
-      shipDate,
-      userId: authUser.id,
-      status: 'placed',
-      complete: false,
+      const order = await Order.create(
+        {
+          petId,
+          quantity,
+          shipDate,
+          userId: authUser.id,
+          status: 'placed',
+          complete: false,
+        },
+        { transaction: t }
+      );
+
+      pet.status = 'pending';
+      await pet.save({ transaction: t });
+
+      return order;
     });
 
-    pet.status = 'pending';
-    await pet.save();
-
-    res.status(201).send(order);
+    res.status(201).send(result);
   } catch (error) {
     console.error(error);
 
@@ -68,13 +78,18 @@ exports.getOrderById = async (req, res) => {
 exports.deleteOrder = async (req, res) => {
   const id = req.params.id;
   try {
-    const order = await Order.findByPk(id);
-    await Pet.update({ status: 'available' }, { where: { id: order.petId } });
-    const num = await Order.destroy({ where: { id } });
+    await sequelize.transaction(async (t) => {
+      const order = await Order.findByPk(id);
+      await Pet.update(
+        { status: 'available' },
+        { where: { id: order.petId }, transaction: t }
+      );
+      const num = await Order.destroy({ where: { id }, transaction: t });
 
-    if (!num) {
-      throw new Error('Order not found');
-    }
+      if (!num) {
+        throw new Error('Order not found');
+      }
+    });
 
     res.send({ message: 'Delete order successfully' });
   } catch (error) {
@@ -103,24 +118,26 @@ exports.updateOrderStatus = async (req, res) => {
   const id = req.params.id;
 
   try {
-    const { status } = filterBody(validOrderKeys, req.body);
+    await sequelize.transaction(async (t) => {
+      const { status } = filterBody(validOrderKeys, req.body);
 
-    const order = await Order.findByPk(id);
-    const pet = await Pet.findByPk(order.petId);
+      const order = await Order.findByPk(id);
+      const pet = await Pet.findByPk(order.petId);
 
-    if (!order) {
-      throw new Error('Order not found');
-    }
+      if (!order) {
+        throw new Error('Order not found');
+      }
 
-    order.status = status;
+      order.status = status;
 
-    if (status === 'delivered') {
-      order.complete = true;
-      pet.status = 'sold';
-    }
+      if (status === 'delivered') {
+        order.complete = true;
+        pet.status = 'sold';
+      }
 
-    await order.save();
-    await pet.save();
+      await order.save({ transaction: t });
+      await pet.save({ transaction: t });
+    });
 
     res.send({ message: 'Order updated successfully' });
   } catch (error) {
