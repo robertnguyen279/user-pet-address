@@ -45,6 +45,9 @@ const verifyAccessToken = async (token) => {
           as: 'addresses',
         },
       ],
+      attributes: {
+        exclude: ['password'],
+      },
     });
     if (!user) {
       throw new Error('User not found');

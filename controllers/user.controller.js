@@ -116,7 +116,7 @@ exports.loginUser = async (req, res) => {
 
 exports.getUser = (req, res) => {
   const user = req.authUser;
-  res.send({ ...user.dataValues, password: undefined });
+  res.send({ ...user.dataValues });
 };
 
 exports.updateUser = async (req, res) => {
